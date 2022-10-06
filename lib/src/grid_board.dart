@@ -14,29 +14,29 @@ class GridBoard extends StatefulWidget {
   final double margin;
   final ValueChanged<GridTapDetails>? onTap;
   final GridBoardController controller;
+  final bool squarize;
 
-  /// Debug mode will show border box of cells 
+  /// Debug mode will show border box of cells
   final bool debugMode;
 
   const GridBoard({
     Key? key,
     this.backgroundColor = const Color.fromARGB(58, 19, 19, 19),
     this.gridSize = const GridSize(6, 6),
-    this.margin = 10,
+    this.margin = 2,
     this.onTap,
     required this.controller,
     this.debugMode = false,
+    this.squarize = true,
   }) : super(key: key);
 
   @override
   State<GridBoard> createState() {
     return _GridBoardState();
   }
-
 }
 
 class _GridBoardState extends State<GridBoard> {
-
   Size? size;
   late List<Offset> cellPositions;
   late List<double> cellRotations;
@@ -44,8 +44,7 @@ class _GridBoardState extends State<GridBoard> {
   int setter = 0;
 
   void _calcInitialCellPositions() {
-
-    if(setter == 0) {
+    if (setter == 0) {
       cellRotations = [];
       cellPositions = [];
     }
@@ -67,7 +66,7 @@ class _GridBoardState extends State<GridBoard> {
         });
       });
     });
-    if(setter < 1) {
+    if (setter < 1) {
       setter += 1;
     }
   }
@@ -101,7 +100,6 @@ class _GridBoardState extends State<GridBoard> {
     }
 
     widget.controller.addListener(() {
- 
       //check cells to move
       widget.controller.cellPositions.forEach((idx, newIdx) {
         setState(() {
@@ -116,7 +114,6 @@ class _GridBoardState extends State<GridBoard> {
           cellRotations[idx] = turn;
         });
       });
-      
     });
   }
 
@@ -147,7 +144,6 @@ class _GridBoardState extends State<GridBoard> {
               index: index));
         }
       },
-
       onTapUp: (details) {
         _tapUpDetails = details;
       },
@@ -166,7 +162,8 @@ class _GridBoardState extends State<GridBoard> {
         ));
   }
 
-  Positioned indexLocationElement({required Offset cp, required Size cellSize}) {
+  Positioned indexLocationElement(
+      {required Offset cp, required Size cellSize}) {
     return Positioned(
       left: cp.dx,
       top: cp.dy,
@@ -182,7 +179,7 @@ class _GridBoardState extends State<GridBoard> {
     );
   }
 
-  List<Widget> rebuild({required Size size, required Size cellSize}){
+  List<Widget> rebuild({required Size size, required Size cellSize}) {
     List<Widget> children = [];
 
     children.add(_background(size: size));
@@ -217,32 +214,36 @@ class _GridBoardState extends State<GridBoard> {
     children.add(_gestureDetector(cellSize: cellSize));
     return children;
   }
+
   Size? _cellSize;
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-        builder: (_, constraints) {
-          debugPrint("Board rebuilt");
-          double square = min(constraints.maxWidth, constraints.maxHeight);
-          final size = Size(square, square);
-          Size cellSize() {
-            double space = 0;
-            space = (widget.gridSize.colCount + 1) * widget.margin;
-            var cellWidth = (size.width - space) / widget.gridSize.colCount;
-            space = (widget.gridSize.rowCount + 1) * widget.margin;
-            var cellHeight = (size.height - space) / widget.gridSize.rowCount;
-            return Size(cellWidth, cellHeight);
-          }
-          if (_cellSize != cellSize()) {
-            _calcIndexCellPositions(cellSize: cellSize());
-            _calcInitialCellPositions();
-            _cellSize = cellSize();
-          }
-          return Stack(
-            children: rebuild(cellSize: cellSize(), size: size),
-          );
+    return LayoutBuilder(builder: (_, constraints) {
+      debugPrint("Board rebuilt");
+      double square = min(constraints.maxWidth, constraints.maxHeight);
+      final size = Size(square, square);
+      Size cellSize() {
+        double space = 0;
+        space = (widget.gridSize.colCount + 1) * widget.margin;
+        var cellWidth = (size.width - space) / widget.gridSize.colCount;
+        space = (widget.gridSize.rowCount + 1) * widget.margin;
+        var cellHeight = (size.height - space) / widget.gridSize.rowCount;
+        var cellD = min(cellWidth, cellHeight);
+        return Size(cellD, cellD);
+      }
 
-        }
-    );
+      if (_cellSize != cellSize()) {
+        _calcIndexCellPositions(cellSize: cellSize());
+        _calcInitialCellPositions();
+        _cellSize = cellSize();
+      }
+      return AspectRatio(
+        aspectRatio: 1,
+        child: Stack(
+          alignment: AlignmentDirectional.center,
+          children: rebuild(cellSize: cellSize(), size: size),
+        ),
+      );
+    });
   }
 }

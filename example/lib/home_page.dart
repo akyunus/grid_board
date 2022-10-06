@@ -9,7 +9,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rnd = Random();
-    GridSize gridSize = const GridSize(5, 5);
+    GridSize gridSize = const GridSize(8, 5);
     final cells = List<GridCell>.generate(gridSize.cellCount, (index) {
       final char = String.fromCharCode(rnd.nextInt(26) + 65);
       return GridCell(
@@ -20,11 +20,12 @@ class HomePage extends StatelessWidget {
             key: ValueKey(index + 1),
             width: 800,
             decoration: BoxDecoration(
-              color: const Color(0x99CC3366),
-              borderRadius: const BorderRadius.all(Radius.circular(24.0)),
+              color: Color.fromARGB(153, 184, 199, 202),
+              borderRadius: const BorderRadius.all(Radius.circular(4.0)),
               border: Border.all(
                 style: BorderStyle.solid,
                 color: const Color(0xFF000000),
+                width: 3,
               ),
               
             ),
@@ -34,12 +35,13 @@ class HomePage extends StatelessWidget {
             width: 800,
             key: ValueKey(index + 2),
             decoration: BoxDecoration(
-              color: const Color(0x9922AB50),
+              color: Color.fromARGB(153, 34, 255, 108),
               
-              borderRadius: const BorderRadius.all(Radius.circular(24.0)),
+              borderRadius: const BorderRadius.all(Radius.circular(4.0)),
               border: Border.all(
                 style: BorderStyle.solid,
                 color: const Color(0xFF000000),
+                width: 3,
               ),
             ),
             child: FittedBox(child: Text(char)),
